@@ -146,27 +146,6 @@ class SNREncoder(object):
             ret.append(decoder[e])
         return ret
 
-
-def snr_label_smoothing(snrs, n_ranges=3, range_overlap=4):
-    snrs = np.asarray(snrs)
-    n_snrs = len(set(snrs))
-    encoding = np.zeros((n_snrs, n_ranges), dtype=int)
-
-    snr_range_len = np.zeros(n_ranges, dtype=int)
-    for i in range(n_ranges):
-        snr_range_len[i] = (n_snrs - np.sum(snr_range_len)) // (n_ranges - i)
-
-    acc_ind = 0
-    for i in range(n_ranges):
-        encoding[acc_ind: acc_ind + snr_range_len[i], i] = 1
-        acc_ind += snr_range_len[i]
-
-    ls_encoding = encoding.copy()
-    acc_ind = 0
-    for i in range(n_ranges - 1):
-        ls_encoding[acc_ind + int(snr_range_len[i]) - range_overlap // 2: acc_ind + int(snr_range_len[i]), i + 1] = 1
-        ls_encoding[acc_ind + int(snr_range_len[i]): acc_ind + int(snr_range_len[i]) + range_overlap // 2, i] = 1
-        acc_ind += snr_range_len[i]
-
-    snr_id = (snrs - snrs.min()) // 2
-    return encoding[snr_id, :], ls_encoding[snr_id, :]
+    def check_ls_labels_in_range(self, ls_labels, range_num):
+        decodeds = np.array(self.decode(ls_labels, encodings_type='ls'))
+        return decodeds[:, range_num].astype(int) == 1

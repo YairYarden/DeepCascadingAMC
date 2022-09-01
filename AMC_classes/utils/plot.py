@@ -308,3 +308,44 @@ def plot_confusion(
         ax.set_title(title, loc="left", fontweight="bold")
 
     return fig
+
+
+def plot_amp_phase(
+    amp_phase: np.ndarray, figsize: Tuple[float, float] = (10.0, 5.0)
+) -> Figure:
+    """Plot IQ data in the time dimension.
+
+    Args:
+      iq (np.ndarray): Complex samples in a 2xN numpy array (IQ x Time)
+      title (str, optional): Title to put above the plot. Defaults to None.
+      figsize (Tuple[float, float], optional): Size of the figure to create.  Defaults
+                                               to (10.0, 5.0).
+
+    Raises:
+        ValueError: If the amp_phase array is not 2xN
+
+    Returns:
+        [Figure]: Figure that the data was plotted onto (e.g. for saving plot)
+    """
+    if len(amp_phase.shape) != 2:
+        raise ValueError("The amp_phase array must be complex (e.g. iq.shape=2xN).")
+    if amp_phase.shape[0] != 2:
+        raise ValueError(
+            "The amp_phase array must be complex (e.g. iq.shape=2xN).  "
+            "Your input did not have size 2 in dim 0."
+        )
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=figsize)
+    t = np.arange(amp_phase.shape[1])
+
+    ax1.plot(t, amp_phase[0, :])
+    ax1.set_xlabel("Sample")
+    ax1.set_ylabel("Amplitude")
+    ax1.set_title("Amplitude", loc="left", fontweight="bold")
+
+    ax2.plot(t, amp_phase[1, :])
+    ax2.set_xlabel("Sample")
+    ax2.set_ylabel("Phase")
+    ax2.set_title("Phase", loc="left", fontweight="bold")
+
+    return fig
